@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializer
+from .serializers import UserSerializer, RegisterSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK,  HTTP_201_CREATED, HTTP_401_UNAUTHORIZED,  HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny,  IsAuthenticated
 from django.contrib.auth import authenticate
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 
 User=get_user_model()
 
@@ -17,7 +18,7 @@ class RegisterView(APIView):
     authentication_classes = []
 
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,  status=HTTP_201_CREATED)
@@ -43,3 +44,11 @@ class LoginView(APIView):
             }, status=HTTP_200_OK)
         return Response({'error': "invalid credentials"}, status=HTTP_401_UNAUTHORIZED)
 
+
+class ProfileView(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = [UserSerializer]
+    permission_classes = [IsAuthenticated]
+
+    def  get_object(self):
+        return self.request.user
