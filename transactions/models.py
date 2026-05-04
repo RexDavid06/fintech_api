@@ -1,19 +1,25 @@
 from django.db import models
 from wallets.models import Wallet
 from uuid import uuid4
+from django.conf import settings
 
 # Create your models here.
 class Transaction(models.Model):
-    TRANSACTION_TYPE = (
-        ('DEBIT', 'Debit'),
-        ('CREDIT', 'Credit'),
+    STATUS = (
+        ("PENDING", "Pending"),
+        ("FAILED", "Failed"),
+        ("SUCCESS", "Success"),
     )
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+
+    id = models.UUIDField(default=uuid4, primary_key=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='sent_tnx')
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,related_name='received_tnx')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
-    transaction_type = models.CharField(max_length=6, choices=TRANSACTION_TYPE)
-    reference = models.UUIDField(default=uuid4, unique=True, editable=False)
+    idempotency_key = models.CharField(max_length=255, unique=True)
+    status = models.CharField(max_length=7, choices=STATUS)
+    narration = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.wallet.user} - {self.transaction_type} - {self.amount}"
+        return self.status
 
