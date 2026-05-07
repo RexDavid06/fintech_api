@@ -11,7 +11,7 @@ class Transaction(models.Model):
         ("SUCCESS", "Success"),
     )
 
-    id = models.UUIDField(default=uuid4, primary_key=True)
+    id = models.UUIDField(default=uuid4, primary_key=True,  editable=False)
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='sent_tnx')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,related_name='received_tnx')
     amount = models.DecimalField(max_digits=12, decimal_places=2)

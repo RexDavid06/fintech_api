@@ -45,10 +45,18 @@ class LoginView(APIView):
         return Response({'error': "invalid credentials"}, status=HTTP_401_UNAUTHORIZED)
 
 
-class ProfileView(RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = [UserSerializer]
+class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
-    def  get_object(self):
+
+class ProfileRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
         return self.request.user
+
+
