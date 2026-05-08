@@ -1,9 +1,9 @@
-from rest_framework import serializer 
-from .models import Transaction
+from rest_framework import serializers
 
 
-class TransactionSerializer(serializer.ModelSerializer):
-    class Meta:
-        model = Transaction
-        fields = ['id', 'amount', 'transaction_type', 'reference', 'created_at']
-        
+class TransferSerializer(serializers.Serializer):
+    receiver_id  = serializers.IntegerField()
+    amount  =  serializers.DecimalField(max_digits=12, decimal_places=2)
+    narration = serializers.CharField(max_length=255, required=False,  allow_blank=True)
+    idempotency_key = serializers.CharField()
+    
