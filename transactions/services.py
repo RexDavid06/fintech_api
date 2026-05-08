@@ -2,9 +2,12 @@ from django.db import transaction
 from .models import Transaction
 from wallets.models import Wallet
 from decimal  import Decimal
+from rest_framework.exceptions import APIException
 
-class InsufficientFund(Exception):
-    pass  
+class InsufficientFund(APIException):
+    status_code = 400
+    default_detail =  'insuficient funds for this transaction'
+    default_code  = 'insufficient code'
 
 @transaction.atomic
 def transfer_funds(*, sender, receiver, amount, narration=None, idempotency_key):
@@ -15,7 +18,7 @@ def transfer_funds(*, sender, receiver, amount, narration=None, idempotency_key)
     receiver_wallet = Wallet.objects.select_for_update().get(user=receiver)
 
     if sender_wallet.balance < amount:
-        raise InsufficientFund('Not enough balance for this transactions')
+        raise InsufficientFund()
 
     
     sender_wallet.balance -= Decimal(amount)
