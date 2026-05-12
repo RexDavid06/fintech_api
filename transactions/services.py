@@ -7,7 +7,7 @@ from rest_framework.exceptions import APIException
 class InsufficientFund(APIException):
     status_code = 400
     default_detail =  'insuficient funds for this transaction'
-    default_code  = 'insufficient code'
+    default_code  = 'Insufficient code'
 
 @transaction.atomic
 def transfer_funds(*, sender, receiver, amount, narration=None, idempotency_key):
