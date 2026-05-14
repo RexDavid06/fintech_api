@@ -17,10 +17,10 @@ class TransferView(APIView):
         serializer = TransferSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        receiver = User.objects.get(id=serializer.validated_data['receiver_id'])
+
         tx = transfer_funds(
             sender=request.user,
-            receiver=receiver,
+            receiver_account_number=serializer.validated_data['account_number'],
             amount=serializer.validated_data['amount'],
             narration=serializer.validated_data.get('narration'),
             idempotency_key=serializer.validated_data['idempotency_key'],

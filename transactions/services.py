@@ -10,12 +10,12 @@ class InsufficientFund(APIException):
     default_code  = 'Insufficient code'
 
 @transaction.atomic
-def transfer_funds(*, sender, receiver, amount, narration=None, idempotency_key):
+def transfer_funds(*, sender, receiver_account_number, amount, narration=None, idempotency_key):
     if Transaction.objects.filter(idempotency_key=idempotency_key).exists():
         return Transaction.objects.get(idempotency_key=idempotency_key)
 
     sender_wallet = Wallet.objects.select_for_update().get(user=sender)
-    receiver_wallet = Wallet.objects.select_for_update().get(user=receiver)
+    receiver_wallet = Wallet.objects.select_for_update().get(account_number=receiver_account_number)
 
     if sender_wallet.balance < amount:
         raise InsufficientFund()
@@ -29,7 +29,7 @@ def transfer_funds(*, sender, receiver, amount, narration=None, idempotency_key)
 
     tx = Transaction.objects.create(
         sender=sender,
-        receiver=receiver,
+        receiver=receiver_wallet.user,
         amount=amount,
         narration=narration,
         idempotency_key=idempotency_key,
